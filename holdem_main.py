@@ -84,7 +84,7 @@ def check_value_hand(hand, flop):
 
     sames = get_sames(hand)
     max_sames = check_max_same(sames)
-    
+    hand_value.
     print("Max Sames: " + str(max_sames))
     
     print("Flush: "+ str(check_flush(hand)))
@@ -136,6 +136,9 @@ def is_straight(hand):
                 return 1
         else:
             count= 1
+    #check for special case ace,2,3,4,5
+    if hand[6]==13 and hand[0]==2 and hand[1]==3 and hand[2]==4 and hand[3]==5:
+        return 1
     return 0
 
 #returns of all the doubles, trips and quads in the given hand within a list
