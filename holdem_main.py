@@ -10,23 +10,16 @@ class Hand_Value:
     def __init__(self):
         self.str_flush_value = None 
         self.str_flush_suit = None 
-
         self.quads_value = None 
-
         self.fullhouse_trip_value = None 
         self.fullhouse_pair_value = None 
-
         self.flush_value = None 
         self.flush_suit = None 
         self.str_value = None 
-
         self.triple_value = None 
-
         self.twopair_high_value = None 
         self.twopair_low_value = None 
-
         self.pair_value = None 
-
         self.highest_card = None
 
     
@@ -74,11 +67,8 @@ def check_value_hand(hand, flop):
     hv = Hand_Value()
     sames = get_sames(hand)
     max_sames = check_max_same(sames, hv)
-    
     print("Max Sames: " + str(max_sames))
-    
     print("Flush: "+ str(check_flush(hand, hv)))
-    
     print("Straight: " + str(is_straight(hand, hv)))
     #check for trips,two pair, for pair and highest card
 
