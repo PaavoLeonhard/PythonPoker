@@ -75,7 +75,7 @@ def check_max_same(sames, hand_value):
     if len(sames) ==0:
         return "No double in this Hand"
     if len(sames[0]) == 4:
-        hand_value.quads_value(sames[0][0].pic)
+        hand_value.quads_value = sames[0][0].pic
         return "QUUUUAAADS"
     if len(sames) > 1:
         if len(sames[0])==3 and len(sames[1])> 1:
@@ -97,16 +97,15 @@ def check_max_same(sames, hand_value):
 
 def check_flush(hand, hand_value):
     ress = []
-    for suit_num in range(4):
-        ress =is_flush(ress,hand, 1, hand_value)
-        ress =is_flush(ress,hand, 2, hand_value)
-        ress =is_flush(ress,hand, 3, hand_value)
-        ress =is_flush(ress,hand, 4, hand_value)
-        ress = [x for x in ress if x is not None]
-        
-        if ress!= None:
-            is_straight(ress, hand_value)
-        return ress
+    #for suit_num in range(4):
+    ress =is_flush(ress,hand, 1, hand_value)
+    ress =is_flush(ress,hand, 2, hand_value)
+    ress =is_flush(ress,hand, 3, hand_value)
+    ress =is_flush(ress,hand, 4, hand_value)
+    ress = [x for x in ress if x is not None]
+    if ress!= None:
+        is_straight(ress, hand_value)
+    return ress
 
 def is_flush(ress,hand,suit, hand_value):
     flush = []
@@ -175,7 +174,6 @@ def return_str_or_strflush(hand_value):
     if hand_value.flush_value > 0:
         hand_value.str_flush_value = hand_value.flush_value
     return hand_value
-
 
 #returns of all the doubles, trips and quads in the given hand within a list
 def get_sames(hand):
