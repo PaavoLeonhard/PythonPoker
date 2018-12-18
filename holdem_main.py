@@ -1,4 +1,5 @@
 class Card:
+
     def __init__(self,pic, suit):
         self.pic = pic
         self.suit = suit
@@ -56,9 +57,6 @@ class Hand_Value:
             value_score = 20000 + self.pair_value
             return( (value_score, "You got " + str(self.pair_value) + " Pairs") )
 
-#class Result:
-#   def __init__(self,value, highest_card):
-#      self.value = value#     self.highest_card =highest_card
 
 def check_value_hand(hand, flop):
     hand.append(flop[0])
@@ -74,7 +72,6 @@ def check_value_hand(hand, flop):
 
 def check_max_same(sames, hand_value):
     sames.sort(key= lambda sames: len(sames), reverse=True)
-    print("Hey")
     if len(sames) ==0:
         return "No double in this Hand"
     if len(sames[0]) == 4:
@@ -92,9 +89,7 @@ def check_max_same(sames, hand_value):
         if len(sames[0])==2 and len(sames[1])==2:
             #for some reason low comes before high which brings the annoying problem of boundaries...
             hand_value.twopair_low_value = sames[0][0].pic
-            print(sames[0][0].pic)
             hand_value.twopair_high_value = sames[1][0].pic
-            print(sames[1][0].pic)
             return "Two pair"
     if len(sames[0])==2:
         hand_value.pair_value = sames[0][0].pic
@@ -103,15 +98,17 @@ def check_max_same(sames, hand_value):
 def check_flush(hand, hand_value):
     ress = []
     for suit_num in range(4):
-        ress.insert(is_flush(hand, 1, hand_value)) 
-        ress.insert(is_flush(hand, 2, hand_value)) 
-        ress.insert(is_flush(hand, 3, hand_value)) 
-        ress.insert(is_flush(hand, 4, hand_value)) 
-        if ress== 1:
-            res = is_straight(ress, hand_value)
+        ress =is_flush(ress,hand, 1, hand_value)
+        ress =is_flush(ress,hand, 2, hand_value)
+        ress =is_flush(ress,hand, 3, hand_value)
+        ress =is_flush(ress,hand, 4, hand_value)
+        ress = [x for x in ress if x is not None]
+        
+        if ress!= None:
+            is_straight(ress, hand_value)
         return ress
 
-def is_flush(hand,suit, hand_value):
+def is_flush(ress,hand,suit, hand_value):
     flush = []
     highest_card = None
     for x in range(len(hand)):
@@ -121,33 +118,64 @@ def is_flush(hand,suit, hand_value):
     if len(flush) > 4:
         #hopefully has the highest Card Value
         hand_value.flush_value = highest_card.pic
-        return flush
-    else:
-        return None
+        hand_value.flush_suit = highest_card.suit
+        ress.append(flush)
+        ress = ress[0]
+    return ress
 
-#Bug more than five in a row
-def is_straight(hand, hand_value):
+#TODO throw out doubl go from top to bottom
+def is_straight(verbose_hand, hand_value):
+    hand = throw_out_sames(verbose_hand)
     count = 1
-    for x in range(len(hand)-1):
-        if (hand[x+1].pic -hand[x].pic)==1:
+    condition = len(hand)-1
+    highest_card_in_straight = hand[condition]
+    while condition > 0:
+        if (hand[condition].pic - hand[condition-1].pic)==1:
             count = count + 1
             if count > 4:
-                #what if there are more than 5 cards in a row
-                hand_value.str_value = hand[x + 1].pic
-                print(hand[x + 1].pic)
-                return 1
+                hand_value.str_value = highest_card_in_straight.pic
+                #chcek for strflush
+                if hand_value.flush_value!=None:
+                    hand_value.str_flush_suit=highest_card_in_straight.suit
+                    hand_value.str_flush_value=highest_card_in_straight.pic
+                return hand_value
         else:
             count= 1
-    #check for special case ace,2,3,4,5
-    if hand[4]==13 and hand[0]==2 and hand[1]==3 and hand[2]==4 and hand[3]==5:
-        return 1
-    #check for special case in strflush ace,2,3,4,5
+            highest_card_in_straight = hand[condition-1]
+        condition = condition -1
     try:
-        if hand[6]==13 and hand[0]==2 and hand[1]==3 and hand[2]==4 and hand[3]==5:
-            return 1
+        #check for special case ace,2,3,4,5
+        if hand[-1].pic==13 and hand[0].pic==2 and hand[1].pic==3 and hand[2].pic==4 and hand[3].pic==5:
+            hand_value.str_value=5
+            return hand_value
+        #check for special case in strflush ace,2,3,4,5
+        if hand[-1].pic==13 and hand[0].pic==2 and hand[1].pic==3 and hand[2].pic==4 and hand[3].pic==5 and hand_value.flush_value != None:
+            hand_value.str_flush_value =5
+            return hand_value
     except:
         pass
-    return 0
+    hand_value.str_value=None
+    return hand_value
+
+def throw_out_sames(hand):
+    '''Trows out Cards with the same Value for the straight function
+    '''
+    reference = None
+    trimmed_hand = []
+    for x in range((len(hand)-1)):
+        reference = hand[x]
+        if (reference.pic != hand[x + 1].pic):
+            trimmed_hand.append(reference)
+    #Adds the last piece into the hand
+    if reference.pic != hand[len(hand)-1].pic:
+        trimmed_hand.append(hand[len(hand)-1])
+    return trimmed_hand
+
+def return_str_or_strflush(hand_value):
+    if hand_value.flush_value > 0:
+        hand_value.str_flush_value = hand_value.flush_value
+    return hand_value
+
 
 #returns of all the doubles, trips and quads in the given hand within a list
 def get_sames(hand):
@@ -184,16 +212,3 @@ def numbers_to_names(card):
     suit_dictonary = {1:"Heart",2:"Diamond",3:"Spades",4:"Cross"}
     return str(picture_dictonary.get(card.pic, card.pic))+ " of " + str(suit_dictonary.get(card.suit, "No Suit? That is probably wrong :("))
 
-
-flop = []
-hand = []
-flop.append(Card(9,2))
-flop.append(Card(11,2))
-flop.append(Card(10,2))
-flop.append(Card(6,3))
-flop.append(Card(7,2))
-hand.append(Card(8,2))
-hand.append(Card(4,4))
-print("Start")
-print(check_value_hand(flop, hand))
-print("Ende")
