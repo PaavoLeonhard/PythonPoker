@@ -1,5 +1,5 @@
 import unittest
-import holdem_main as hm
+import hand_eval as hm
 
 class test_eval_class(unittest.TestCase):
 

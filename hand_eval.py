@@ -1,5 +1,4 @@
 class Card:
-
     def __init__(self,pic, suit):
         self.pic = pic
         self.suit = suit
