@@ -27,8 +27,9 @@ class PokerGameGui {
     window.addEventListener("resize", () => {
         this.canvas.width = window.innerWidth;
         this.canvas.height = window.innerHeight;
+        this.reset();
     });
-    this.start();
+    //this.start();
   }
 
   clear() {
@@ -41,8 +42,13 @@ class PokerGameGui {
     this.table.draw();
     let card1 = new Card(this.canvas.width*.5, this.canvas.height*.5,45,'ace',true,this.ctx);
     let card2 = new Card(this.canvas.width*.5 -200, this.canvas.height*.5,-45,'ace',false,this.ctx);
-    card1.draw();
-    card2.draw();
+    let chip1 = new Chip(500,400,0,10,this.ctx);
+    let s = [card1,card2];
+    s.forEach(e => e.draw());
+    chip1.draw();
+    // card1.draw();
+    // card2.draw();
+    // chip1.draw();
     this.raf = requestAnimationFrame(() => this.reset());
 
   }
@@ -93,6 +99,7 @@ class Card {
     if(this.face) {
       this.drawFace();
     } else {
+      // this.drawBack();
       this.drawBack();
     }
   }
@@ -108,6 +115,7 @@ class Card {
 
     // CARD SHAPE
 
+    // GLOBAL CARD ROTATION
     ctx.translate(x, y);
     ctx.rotate(this.rotation * Math.PI / 180);
     ctx.translate(-x, -y);
@@ -146,6 +154,7 @@ class Card {
 
     // PATTERN
     ctx.fillStyle = "#ff0000";
+
     let rotation = 30;
     ctx.translate(x, y);
     ctx.rotate(-rotation * Math.PI / 180);
@@ -161,9 +170,64 @@ class Card {
     }
     ctx.restore();
 
+    //GLOBAL CARD ROTATION RESET
     ctx.translate(x, y)
     ctx.rotate(-this.rotation * Math.PI / 180);
     ctx.translate(-x, -y)
+  }
+
+  drawBack2() {
+    let ctx = this.ctx,
+    scale = ctx.canvas.height * .0013,
+    w = 50*scale,
+    h = 1.3*w,
+    r = .06*w,
+    x = this.x,
+    y = this.y;
+
+    // CARD SHAPE
+
+    // GLOBAL CARD ROTATION
+    ctx.translate(x, y);
+    ctx.rotate(this.rotation * Math.PI / 180);
+    ctx.translate(-x, -y);
+
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.arc((x-.5*w)+r,y-.5*h,r,Math.PI,Math.PI*1.5);
+    ctx.arc((x+.5*w)-r,(y-.5*h),r,Math.PI*1.5,0);
+    ctx.arc((x+.5*w)-r,(y+.5*h),r,0,Math.PI*.5);
+    ctx.arc((x-.5*w)+r,(y+.5*h),r,Math.PI*.5,Math.PI);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.clip();
+
+    // PATTERN
+    ctx.save();
+    ctx.fillStyle = "#ff0000";
+    let rotation = 30;
+    ctx.translate(x, y);
+    ctx.rotate(-rotation * Math.PI / 180);
+    ctx.translate(-x, -y);
+    for(let i = 0; i++<30;) {
+      ctx.fillStyle = "#ff0000";
+      ctx.fillRect(x-w*.8+(w*.07*i),y-h*.8,w*.02,h*1.6);
+    }
+    ctx.translate(x, y)
+    ctx.rotate(rotation * 2 * Math.PI / 180);
+    ctx.translate(-x, -y)
+    for(let i = 0; i++<30;) {
+      ctx.fillStyle = "#ff0000";
+      ctx.fillRect(x-w*.8+(w*.07*i),y-h*.8,w*.02,h*1.6);
+    }
+    ctx.restore();
+
+    //GLOBAL CARD ROTATION RESET
+    ctx.translate(x, y)
+    ctx.rotate(-this.rotation * Math.PI / 180);
+    ctx.translate(-x, -y)
+
 
   }
 
@@ -177,6 +241,7 @@ class Card {
     y = this.y;
 
     // CARD SHAPE
+    ctx.save();
 
     ctx.translate(x, y);
     ctx.rotate(this.rotation * Math.PI / 180);
@@ -191,12 +256,11 @@ class Card {
     ctx.closePath();
     ctx.fill();
 
-+
-
-
     ctx.translate(x, y);
     ctx.rotate(-this.rotation * Math.PI / 180);
     ctx.translate(-x, -y);
+
+    ctx.restore();
   }
 
   set value(value) {
@@ -273,6 +337,54 @@ class Table {
     ctx.lineTo(cW*.5-.5*w,cH*.5+.5*h);
     ctx.arc(cW*.5-.5*w,cH*.5,h*.5,Math.PI*.5,Math.PI*1.5);
     ctx.stroke();
+  }
+}
+
+class Chip {
+  constructor(x,y,rotation,value,ctx) {
+    this.x = x;
+    this.y = y;
+    this.rotation = rotation;
+    this.value = value;
+    this.ctx = ctx;
+
+  }
+
+  draw() {
+    let ctx = this.ctx,
+    x = this.x,
+    y = this.y,
+    radius = 10; //to be controlled via scale (maybe put scale up in the table class)
+
+    ctx.fillStyle = '#ce5f5f';
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(x,y,radius,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.clip();
+
+    ctx.fillStyle = "#fff";
+    for(let i = 0; i < 3; i++) {
+      ctx.translate(x,y);
+      ctx.rotate(60 * Math.PI / 180)
+      ctx.translate(-x,-y);
+      ctx.fillRect(x-radius*1.1,y-radius*.1,radius*2.2,radius*.2);
+    }
+
+    ctx.restore();
+    ctx.strokeStyle = '#fff';
+
+    ctx.beginPath();
+    ctx.arc(x,y,radius*.8,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(x,y,radius*.6,0,Math.PI*2);
+    ctx.stroke();
+
+
+
   }
 }
 
